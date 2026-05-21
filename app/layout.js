@@ -24,7 +24,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de" className={`${playfair.variable} ${urbanist.variable}`}>
-      <body className="font-sans bg-black text-bone selection:bg-gold/30">
+      <body className="font-sans bg-porcelain text-noir selection:bg-gold/30">
         {children}
       </body>
     </html>

@@ -10,8 +10,8 @@
 
 html,
 body {
-  background-color: #000;
-  color: var(--color-bone);
+  background-color: #FAF8F3;
+  color: #1A1611;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -22,8 +22,8 @@ html {
 }
 
 ::selection {
-  background: rgba(212, 175, 55, 0.35);
-  color: #fff;
+  background: rgba(212, 175, 55, 0.30);
+  color: #1A1611;
 }
 
 /* Subtle film grain */

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useScrollFrameSequence } from "@/hooks/useScrollFrameSequence";
 
-const FRAME_COUNT = 150;
+const FRAME_COUNT = 119;
 const BASE_PATH = "/hero-sequence";
 
 // Chapter 1 starts at 0.06 so the very top of the hero is a silent,
@@ -44,15 +44,16 @@ function chapterOpacity(progress, chapter) {
 }
 
 export default function HeroSequence() {
-  // Source video is portrait 9:16; on desktop the canvas column is wider/shorter
-  // so a centered cover-crop swallows the model's head. We anchor toward the top.
-  const [focalY, setFocalY] = useState(0.18);
+  // Source video is landscape 16:9 (model centre-left, the gold GLAMORA logo
+  // upper-right). The canvas runs full-bleed. On a narrow phone the cover-crop
+  // trims the sides, so we anchor focalX toward the model to keep her in frame.
+  const [focalX, setFocalX] = useState(0.5);
 
   useEffect(() => {
     const compute = () => {
       const w = window.innerWidth;
-      if (w < 768) setFocalY(0.42);
-      else setFocalY(0.12);
+      if (w < 768) setFocalX(0.34);
+      else setFocalX(0.5);
     };
     compute();
     window.addEventListener("resize", compute);
@@ -63,8 +64,8 @@ export default function HeroSequence() {
     useScrollFrameSequence({
       basePath: BASE_PATH,
       frameCount: FRAME_COUNT,
-      focalX: 0.5,
-      focalY,
+      focalX,
+      focalY: 0.5,
     });
 
   const chapterStates = useMemo(
@@ -89,72 +90,108 @@ export default function HeroSequence() {
       style={{ height: "350vh" }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
-        {/* Canvas layer — full bleed on mobile, right column on desktop. */}
-        <div className="absolute inset-0 md:left-[42%]">
+        {/* Canvas layer — full-bleed landscape on every breakpoint. */}
+        <div className="absolute inset-0">
           <canvas
             ref={canvasRef}
             aria-hidden="true"
             className="block h-full w-full"
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black via-black/0 to-black/30 md:from-black/95 md:via-transparent md:to-black/40" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black via-black/70 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/70 to-transparent" />
+          {/* Directional scrim — follows the active chapter's side so the copy
+              stays legible without darkening the whole frame. */}
+          {chapterStates.map((chapter, i) => (
+            <div
+              key={`scrim-${i}`}
+              className={`pointer-events-none absolute inset-0 ${
+                i % 2 === 0
+                  ? "bg-gradient-to-r from-black/65 via-black/10 to-transparent"
+                  : "bg-gradient-to-l from-black/65 via-black/10 to-transparent"
+              }`}
+              style={{ opacity: chapter.opacity, transition: "opacity 120ms linear" }}
+            />
+          ))}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/45 to-transparent" />
         </div>
 
-        {/* Loader veil */}
+        {/* Loader veil — light porcelain to match the bright site. */}
         <div
-          className={`pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-black transition-opacity duration-700 ${
+          className={`pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-porcelain transition-opacity duration-700 ${
             firstFrameReady ? "opacity-0" : "opacity-100"
           }`}
         >
           <div className="text-center">
-            <div className="font-display text-2xl tracking-[0.45em] text-gold">
+            <div className="font-display text-2xl tracking-[0.45em] text-noir">
               GLAMORA
             </div>
-            <div className="mt-6 h-px w-40 overflow-hidden bg-gold/15">
+            <div className="mt-6 h-px w-40 overflow-hidden bg-noir/10">
               <div
                 className="h-full bg-gold transition-[width] duration-500"
                 style={{ width: `${Math.round(loadProgress * 100)}%` }}
               />
             </div>
-            <div className="mt-4 text-[10px] uppercase tracking-widest2 text-bone/40">
+            <div className="mt-4 text-[10px] uppercase tracking-widest2 text-noir/40">
               Das Atelier öffnet
             </div>
           </div>
         </div>
 
-        {/* Apple-style bottom-left typography column. */}
-        <div className="relative z-20 mx-auto flex h-full max-w-[1480px] flex-col justify-end px-6 pb-20 md:px-10 md:pb-24">
-          <div className="relative w-full max-w-md md:max-w-[42%]">
-            <div className="relative min-h-[200px] md:min-h-[230px]">
-              {chapterStates.map((chapter, i) => (
+        {/* Apple-style headline stage — chapters alternate left / right. */}
+        <div className="pointer-events-none absolute inset-0 z-20">
+          {chapterStates.map((chapter, i) => {
+            const right = i % 2 === 1;
+            return (
+              <div
+                key={i}
+                className="absolute inset-0 flex items-end pb-24 md:pb-28 will-change-[transform,opacity]"
+                style={{
+                  opacity: chapter.opacity,
+                  transform: `translate3d(0, ${(1 - chapter.opacity) * 24}px, 0)`,
+                  transition: "opacity 120ms linear",
+                }}
+              >
                 <div
-                  key={i}
-                  className="absolute inset-0 will-change-[transform,opacity]"
-                  style={{
-                    opacity: chapter.opacity,
-                    transform: `translate3d(0, ${
-                      (1 - chapter.opacity) * 20
-                    }px, 0)`,
-                    transition: "opacity 120ms linear",
-                  }}
+                  className={`mx-auto flex w-full max-w-[1480px] px-6 md:px-10 ${
+                    right ? "justify-end" : "justify-start"
+                  }`}
                 >
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className="h-px w-8 bg-gold/80" />
-                    <span className="text-[9px] uppercase tracking-widest2 text-gold/90">
-                      {chapter.eyebrow}
-                    </span>
+                  <div className={`max-w-[34rem] ${right ? "text-right" : "text-left"}`}>
+                    <div
+                      className={`mb-5 flex items-center gap-3 ${
+                        right ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      {right ? (
+                        <>
+                          <span className="text-[10px] uppercase tracking-widest2 text-gold">
+                            {chapter.eyebrow}
+                          </span>
+                          <span className="h-px w-10 bg-gold/80" />
+                        </>
+                      ) : (
+                        <>
+                          <span className="h-px w-10 bg-gold/80" />
+                          <span className="text-[10px] uppercase tracking-widest2 text-gold">
+                            {chapter.eyebrow}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <h1 className="whitespace-pre-line font-sans text-[44px] font-extralight leading-[0.98] tracking-[-0.03em] text-bone md:text-[72px] lg:text-[88px]">
+                      {chapter.title}
+                    </h1>
+                    <p
+                      className={`mt-6 text-[13px] font-light leading-[1.75] text-bone/70 md:text-[14px] ${
+                        right ? "ml-auto" : ""
+                      } max-w-md`}
+                    >
+                      {chapter.body}
+                    </p>
                   </div>
-                  <h1 className="whitespace-pre-line font-display text-[32px] font-light leading-[1.05] tracking-tight text-bone md:text-[44px] lg:text-[52px]">
-                    {chapter.title}
-                  </h1>
-                  <p className="mt-5 max-w-sm text-[12px] font-light leading-[1.75] text-bone/55 md:mt-6 md:text-[12.5px]">
-                    {chapter.body}
-                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Filigree gold timeline — Apple-style scrub line at the very bottom. */}

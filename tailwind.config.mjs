@@ -25,6 +25,12 @@ export default {
           500: "#1C1C21",
         },
         bone: "#F4EFE6",
+        // Light theme palette — warm porcelain & ink.
+        porcelain: "#FAF8F3", // page base
+        linen: "#FFFFFF", // pure white cards
+        mist: "#F1ECE3", // alternating / card surface
+        noir: "#1A1611", // warm near-black text
+        line: "#E3DCCF", // hairline borders on light
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Playfair Display", "serif"],
