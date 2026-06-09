@@ -5,3 +5,9 @@ out
 .env*.local
 npm-debug.log*
 .playwright-mcp
+.claude
+
+# Python background-removal tooling (rembg) — local only, not deployed
+.rembg-venv
+tools/_frames_in
+tools/_frames_out

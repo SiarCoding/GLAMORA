@@ -5,14 +5,20 @@ import { buildFramePaths, preloadFrames } from "@/utils/preloadFrames";
 import { drawCoverImage, sizeCanvasToBox } from "@/utils/drawCoverImage";
 
 /**
- * Hook that wires a tall scroll container to a sticky canvas. Scroll progress
- * inside the container is mapped 1:1 to a frame in a preloaded image sequence.
+ * Hook that wires a tall scroll container to a sticky canvas. Scroll position
+ * sets a *target* progress; a persistent rAF loop eases the *displayed* progress
+ * toward that target every frame (Apple-style inertia), so even coarse wheel /
+ * trackpad input scrubs the image sequence butter-smooth instead of stepping.
  *
  * @param {object} opts
  * @param {string} opts.basePath        e.g. "/hero-sequence"
  * @param {number} opts.frameCount      total number of frames
  * @param {number} [opts.pad=3]         zero-pad width of frame numbers
  * @param {string} [opts.ext="webp"]    frame extension
+ * @param {number} [opts.focalX=0.5]    cover-crop focal point X (0..1)
+ * @param {number} [opts.focalY=0.5]    cover-crop focal point Y (0..1)
+ * @param {number} [opts.smoothing=0.11] time constant (s) of the easing — higher
+ *                                       = smoother & heavier glide, lower = snappier
  * @returns {object} refs + state to wire to your JSX
  */
 export function useScrollFrameSequence({
@@ -22,12 +28,14 @@ export function useScrollFrameSequence({
   ext = "webp",
   focalX = 0.5,
   focalY = 0.5,
+  smoothing = 0.11,
 }) {
   const sectionRef = useRef(null); // tall scroll wrapper
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
-  const currentFrameRef = useRef(0);
-  const tickingRef = useRef(false);
+
+  const targetRef = useRef(0); // where scroll says we should be (0..1)
+  const smoothRef = useRef(0); // where we're actually drawing (eased)
 
   const [progress, setProgress] = useState(0);
   const [firstFrameReady, setFirstFrameReady] = useState(false);
@@ -55,7 +63,7 @@ export function useScrollFrameSequence({
     });
   }, [basePath, frameCount, pad, ext]);
 
-  // -- Scroll → frame mapping ------------------------------------------------
+  // -- Scroll → target, rAF loop → eased frame -------------------------------
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
@@ -64,79 +72,128 @@ export function useScrollFrameSequence({
     const ctx = canvas.getContext("2d");
     let cssSize = sizeCanvasToBox(canvas);
 
-    const render = () => {
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let rafId = null;
+    let running = false;
+    let lastT = 0;
+    let lastDrawnFrame = -1;
+    let lastReported = -1;
+
+    // Section-relative scroll → normalized 0..1.
+    const computeTarget = () => {
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight;
-      // Scroll distance available inside the sticky region.
       const scrollable = rect.height - vh;
       const scrolled = Math.min(Math.max(-rect.top, 0), scrollable);
-      const p = scrollable > 0 ? scrolled / scrollable : 0;
+      return scrollable > 0 ? scrolled / scrollable : 0;
+    };
 
+    // Draw the frame nearest to progress p. Walks backward to the nearest
+    // decoded frame so the canvas never blanks while later frames stream in.
+    const drawFrame = (p) => {
       const frameIndex = Math.min(
         frameCount - 1,
-        Math.max(0, Math.floor(p * (frameCount - 1)))
+        Math.max(0, Math.round(p * (frameCount - 1)))
       );
 
-      setProgress(p);
-
-      const img =
-        imagesRef.current[frameIndex] || imagesRef.current[0];
-
-      // Walk backward if the exact frame isn't decoded yet, so we never blank.
-      let drew = false;
+      const img = imagesRef.current[frameIndex];
       if (img && img.naturalWidth) {
-        drew = drawCoverImage(
-          ctx,
-          img,
-          cssSize.width,
-          cssSize.height,
-          focalX,
-          focalY
-        );
-        currentFrameRef.current = frameIndex;
+        if (frameIndex === lastDrawnFrame) return; // nothing changed
+        drawCoverImage(ctx, img, cssSize.width, cssSize.height, focalX, focalY);
+        lastDrawnFrame = frameIndex;
+        return;
       }
-      if (!drew) {
-        for (let i = frameIndex; i >= 0; i -= 1) {
-          const fallback = imagesRef.current[i];
-          if (fallback && fallback.naturalWidth) {
-            drawCoverImage(
-              ctx,
-              fallback,
-              cssSize.width,
-              cssSize.height,
-              focalX,
-              focalY
-            );
-            break;
-          }
+
+      // Exact frame not decoded yet — draw the closest earlier frame, but don't
+      // record it as "drawn" so we retry once the real frame arrives.
+      for (let i = frameIndex - 1; i >= 0; i -= 1) {
+        const fallback = imagesRef.current[i];
+        if (fallback && fallback.naturalWidth) {
+          drawCoverImage(
+            ctx,
+            fallback,
+            cssSize.width,
+            cssSize.height,
+            focalX,
+            focalY
+          );
+          lastDrawnFrame = -1;
+          break;
         }
       }
     };
 
+    // Frame-rate-independent exponential smoothing toward the target.
+    const tick = (now) => {
+      if (!lastT) lastT = now;
+      const dt = Math.min((now - lastT) / 1000, 0.05); // clamp tab-switch gaps
+      lastT = now;
+
+      const target = targetRef.current;
+      const cur = smoothRef.current;
+      const a = prefersReduced ? 1 : 1 - Math.exp(-dt / smoothing);
+      let next = cur + (target - cur) * a;
+      if (Math.abs(target - next) < 0.0002) next = target; // settle
+
+      smoothRef.current = next;
+      drawFrame(next);
+
+      if (Math.abs(next - lastReported) > 0.0015) {
+        lastReported = next;
+        setProgress(next);
+      }
+
+      if (next !== target) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        running = false;
+        lastT = 0;
+        if (lastReported !== next) {
+          lastReported = next;
+          setProgress(next); // final exact sync for overlays
+        }
+      }
+    };
+
+    const kick = () => {
+      if (running) return;
+      running = true;
+      lastT = 0;
+      rafId = requestAnimationFrame(tick);
+    };
+
     const onScroll = () => {
-      if (tickingRef.current) return;
-      tickingRef.current = true;
-      requestAnimationFrame(() => {
-        render();
-        tickingRef.current = false;
-      });
+      targetRef.current = computeTarget();
+      kick();
     };
 
     const onResize = () => {
       cssSize = sizeCanvasToBox(canvas);
-      render();
+      targetRef.current = computeTarget();
+      lastDrawnFrame = -1; // force a redraw at the new size
+      drawFrame(smoothRef.current);
+      kick();
     };
 
-    // Initial render in case we mount mid-scroll (refresh, deep link).
-    render();
+    // Start synced to the current scroll position so a refresh / deep link
+    // lands on the right frame without an initial slide.
+    targetRef.current = computeTarget();
+    smoothRef.current = targetRef.current;
+    drawFrame(smoothRef.current);
+    setProgress(smoothRef.current);
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
     };
-  }, [frameCount, focalX, focalY]);
+  }, [frameCount, focalX, focalY, smoothing]);
 
   return {
     sectionRef,

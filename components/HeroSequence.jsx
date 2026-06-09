@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useScrollFrameSequence } from "@/hooks/useScrollFrameSequence";
 
-const FRAME_COUNT = 119;
+const FRAME_COUNT = 97;
 const BASE_PATH = "/hero-sequence";
 
 // Chapter 1 starts at 0.06 so the very top of the hero is a silent,

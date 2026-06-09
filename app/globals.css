@@ -37,6 +37,48 @@ html {
   pointer-events: none;
 }
 
+/* Fluted dark-wood slat wall — pure CSS, no image asset.
+   Layer order (top → bottom): warm key light, depth shading, the battens. */
+.panel-fluted {
+  background-color: #0a0807;
+  background-image:
+    /* faint top sheen + downward depth */
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(0, 0, 0, 0) 18%,
+      rgba(0, 0, 0, 0.5) 100%
+    ),
+    /* crisp warm battens — near-black grooves, lit crowns */
+    repeating-linear-gradient(
+      90deg,
+      #050403 0px,
+      #090705 2px,
+      #140f0a 6px,
+      #241b12 13px,
+      #2e2317 17px,
+      #241b12 21px,
+      #140f0a 28px,
+      #090705 32px,
+      #050403 34px
+    );
+}
+
+/* Black-gold display gradient for the showroom cards. */
+.card-noir-gold {
+  background:
+    radial-gradient(ellipse 60% 48% at 50% 40%, rgba(212, 175, 55, 0.18), transparent 66%),
+    radial-gradient(ellipse 105% 45% at 50% 116%, rgba(212, 175, 55, 0.12), transparent 72%),
+    linear-gradient(155deg, #1a1209 0%, #0c0805 48%, #050403 100%);
+}
+
+/* Light porcelain display gradient — warm cream with a soft gold halo. */
+.card-light {
+  background:
+    radial-gradient(ellipse 58% 48% at 50% 40%, rgba(212, 175, 55, 0.12), transparent 62%),
+    linear-gradient(165deg, #ffffff 0%, #f4efe5 58%, #ebe4d6 100%);
+}
+
 /* Hairline gold rule */
 .rule-gold {
   background: linear-gradient(
