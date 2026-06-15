@@ -19,8 +19,9 @@ import {
  * @param {number} opts.frameCount      total number of frames
  * @param {number} [opts.pad=3]         zero-pad width of frame numbers
  * @param {string} [opts.ext="webp"]    frame extension
- * @param {number} [opts.focalX=0.5]    cover-crop focal point X (0..1)
- * @param {number} [opts.focalY=0.5]    cover-crop focal point Y (0..1)
+ * @param {number} [opts.focalX=0.5]    focal point X (0..1)
+ * @param {number} [opts.focalY=0.5]    focal point Y (0..1)
+ * @param {"cover"|"contain"} [opts.fit="cover"] how frames fill the canvas box
  * @param {number} [opts.smoothing=0.11] time constant (s) of the easing — higher
  *                                       = smoother & heavier glide, lower = snappier
  * @param {"cover"|"contain"} [opts.fit="cover"] how each frame fills the canvas.
@@ -35,8 +36,8 @@ export function useScrollFrameSequence({
   ext = "webp",
   focalX = 0.5,
   focalY = 0.5,
-  smoothing = 0.11,
   fit = "cover",
+  smoothing = 0.11,
   padding = 0,
 }) {
   const drawImageFit =
@@ -133,7 +134,8 @@ export function useScrollFrameSequence({
             cssSize.width,
             cssSize.height,
             focalX,
-            focalY
+            focalY,
+            fit
           );
           lastDrawnFrame = -1;
           break;

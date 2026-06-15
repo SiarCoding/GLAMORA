@@ -11,3 +11,6 @@ npm-debug.log*
 .rembg-venv
 tools/_frames_in
 tools/_frames_out
+
+# Local backup of original (black-background) showroom frames
+_showroom_raw_backup/

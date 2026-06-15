@@ -52,7 +52,9 @@ export default function HeroSequence() {
   useEffect(() => {
     const compute = () => {
       const w = window.innerWidth;
-      if (w < 768) setFocalX(0.34);
+      // On phones, bias the cover-crop toward the LEFT of the frame (not the
+      // centre) so we show the left side of the video — slightly left.
+      if (w < 768) setFocalX(0.2);
       else setFocalX(0.5);
     };
     compute();

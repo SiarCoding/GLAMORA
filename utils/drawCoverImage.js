@@ -1,8 +1,13 @@
 /**
- * Draw an image onto a canvas using a "cover" strategy that preserves the
- * source aspect ratio — the same behaviour as CSS `object-fit: cover` plus
- * `object-position`. focalX / focalY are 0..1 (default 0.5, 0.5 = center).
- * Use focalY ~= 0.2 to favour the top of a portrait subject (keep the head).
+ * Draw an image onto a canvas while preserving the source aspect ratio.
+ *
+ * fit = "cover"   — fills the box, cropping the overflow (CSS object-fit: cover).
+ *                   focalX / focalY (0..1) choose which part survives the crop.
+ * fit = "contain" — fits the whole image inside the box, letterboxing the rest
+ *                   (CSS object-fit: contain). focalX / focalY position the
+ *                   image within the letterbox (0.5 = centred). The letterbox is
+ *                   left transparent so whatever sits behind the canvas shows.
+ *
  * Returns true if the image was actually drawn.
  */
 export function drawCoverImage(
@@ -11,7 +16,8 @@ export function drawCoverImage(
   width,
   height,
   focalX = 0.5,
-  focalY = 0.5
+  focalY = 0.5,
+  fit = "cover"
 ) {
   if (!ctx || !img || !img.naturalWidth || !img.naturalHeight) return false;
 
@@ -19,6 +25,17 @@ export function drawCoverImage(
   const ih = img.naturalHeight;
   const cw = width;
   const ch = height;
+
+  if (fit === "contain") {
+    const scale = Math.min(cw / iw, ch / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    const dx = (cw - dw) * focalX;
+    const dy = (ch - dh) * focalY;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
+    return true;
+  }
 
   const sourceRatio = iw / ih;
   const targetRatio = cw / ch;
