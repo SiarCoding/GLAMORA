@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { buildFramePaths, preloadFrames } from "@/utils/preloadFrames";
-import { drawCoverImage, sizeCanvasToBox } from "@/utils/drawCoverImage";
+import {
+  drawCoverImage,
+  drawContainImage,
+  sizeCanvasToBox,
+} from "@/utils/drawCoverImage";
 
 /**
  * Hook that wires a tall scroll container to a sticky canvas. Scroll position
@@ -19,6 +23,9 @@ import { drawCoverImage, sizeCanvasToBox } from "@/utils/drawCoverImage";
  * @param {number} [opts.focalY=0.5]    cover-crop focal point Y (0..1)
  * @param {number} [opts.smoothing=0.11] time constant (s) of the easing — higher
  *                                       = smoother & heavier glide, lower = snappier
+ * @param {"cover"|"contain"} [opts.fit="cover"] how each frame fills the canvas.
+ *                                       Use "contain" for background-free (alpha)
+ *                                       subjects that must never be cropped.
  * @returns {object} refs + state to wire to your JSX
  */
 export function useScrollFrameSequence({
@@ -29,7 +36,14 @@ export function useScrollFrameSequence({
   focalX = 0.5,
   focalY = 0.5,
   smoothing = 0.11,
+  fit = "cover",
+  padding = 0,
 }) {
+  const drawImageFit =
+    fit === "contain"
+      ? (ctx, img, w, h, fx, fy) =>
+          drawContainImage(ctx, img, w, h, fx, fy, padding)
+      : drawCoverImage;
   const sectionRef = useRef(null); // tall scroll wrapper
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
@@ -57,11 +71,11 @@ export function useScrollFrameSequence({
         const size = sizeCanvasToBox(canvas);
         if (size) {
           const ctx = canvas.getContext("2d");
-          drawCoverImage(ctx, images[0], size.width, size.height, focalX, focalY);
+          drawImageFit(ctx, images[0], size.width, size.height, focalX, focalY);
         }
       }
     });
-  }, [basePath, frameCount, pad, ext]);
+  }, [basePath, frameCount, pad, ext, fit, padding]);
 
   // -- Scroll → target, rAF loop → eased frame -------------------------------
   useEffect(() => {
@@ -103,7 +117,7 @@ export function useScrollFrameSequence({
       const img = imagesRef.current[frameIndex];
       if (img && img.naturalWidth) {
         if (frameIndex === lastDrawnFrame) return; // nothing changed
-        drawCoverImage(ctx, img, cssSize.width, cssSize.height, focalX, focalY);
+        drawImageFit(ctx, img, cssSize.width, cssSize.height, focalX, focalY);
         lastDrawnFrame = frameIndex;
         return;
       }
@@ -113,7 +127,7 @@ export function useScrollFrameSequence({
       for (let i = frameIndex - 1; i >= 0; i -= 1) {
         const fallback = imagesRef.current[i];
         if (fallback && fallback.naturalWidth) {
-          drawCoverImage(
+          drawImageFit(
             ctx,
             fallback,
             cssSize.width,
@@ -172,7 +186,9 @@ export function useScrollFrameSequence({
     };
 
     const onResize = () => {
-      cssSize = sizeCanvasToBox(canvas);
+      const next = sizeCanvasToBox(canvas);
+      // Skip no-op resizes so we don't needlessly clear/redraw.
+      if (next) cssSize = next;
       targetRef.current = computeTarget();
       lastDrawnFrame = -1; // force a redraw at the new size
       drawFrame(smoothRef.current);
@@ -188,12 +204,25 @@ export function useScrollFrameSequence({
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+
+    // A plain window 'resize' listener misses box changes that happen without
+    // the window itself resizing: late web-font layout, the sticky stage
+    // activating, `svh`/`dvh` shifts as the mobile URL bar hides, flex reflow.
+    // Any of those leave the canvas backing store at a stale size, which
+    // stretches the drawn frame. A ResizeObserver re-syncs on every box change.
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => onResize());
+      ro.observe(canvas);
+    }
+
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
+      if (ro) ro.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
     };
-  }, [frameCount, focalX, focalY, smoothing]);
+  }, [frameCount, focalX, focalY, smoothing, fit, padding]);
 
   return {
     sectionRef,

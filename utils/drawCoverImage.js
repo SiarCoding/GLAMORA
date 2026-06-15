@@ -44,6 +44,45 @@ export function drawCoverImage(
   return true;
 }
 
+/**
+ * Draw an image using a "contain" strategy (like CSS `object-fit: contain`):
+ * the whole image is scaled to fit inside the box, preserving aspect ratio, and
+ * centred. Nothing is cropped — ideal for background-free (alpha) subjects that
+ * must never lose a sleeve or hem. focalY biases vertical placement when there
+ * is spare room (0 = top, 0.5 = centre, 1 = bottom). The canvas is cleared
+ * first so the transparent margins show whatever sits behind the canvas.
+ * Returns true if the image was actually drawn.
+ */
+export function drawContainImage(
+  ctx,
+  img,
+  width,
+  height,
+  focalX = 0.5,
+  focalY = 0.5,
+  pad = 0
+) {
+  if (!ctx || !img || !img.naturalWidth || !img.naturalHeight) return false;
+
+  const iw = img.naturalWidth;
+  const ih = img.naturalHeight;
+
+  // Leave a margin (fraction of each side) so the subject never touches the box
+  // edges — a flush hem reads as "cut off" even when the frame is complete.
+  const availW = width * (1 - 2 * pad);
+  const availH = height * (1 - 2 * pad);
+
+  const scale = Math.min(availW / iw, availH / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  const dx = (width - dw) * focalX;
+  const dy = (height - dh) * focalY;
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
+  return true;
+}
+
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
 }
