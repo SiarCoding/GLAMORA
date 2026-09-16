@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import GlamoraHero from "@/components/hero/GlamoraHero";
 import HeroSequence from "@/components/HeroSequence";
 import SechsRobenSection from "@/components/SechsRobenSection";
 import ShowroomSection from "@/components/ShowroomSection";
@@ -10,6 +11,8 @@ export default function Home() {
   return (
     <main className="relative bg-porcelain">
       <Navigation />
+      {/* Film hero from the Higgsfield site; the former hero follows as chapter 2. */}
+      <GlamoraHero />
       <HeroSequence />
       <ShowroomSection />
       <SechsRobenSection />

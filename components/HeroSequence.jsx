@@ -179,9 +179,9 @@ export default function HeroSequence() {
                         </>
                       )}
                     </div>
-                    <h1 className="whitespace-pre-line font-sans text-[44px] font-extralight leading-[0.98] tracking-[-0.03em] text-bone md:text-[72px] lg:text-[88px]">
+                    <h2 className="whitespace-pre-line font-sans text-[44px] font-extralight leading-[0.98] tracking-[-0.03em] text-bone md:text-[72px] lg:text-[88px]">
                       {chapter.title}
-                    </h1>
+                    </h2>
                     <p
                       className={`mt-6 text-[13px] font-light leading-[1.75] text-bone/70 md:text-[14px] ${
                         right ? "ml-auto" : ""

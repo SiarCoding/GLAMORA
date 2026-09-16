@@ -1,0 +1,446 @@
+/* GLAMORA hero + header — ported 1:1 from the Higgsfield site
+ * (glamora-hamburg/app/src/glamora.css). Only the rules that the header, the
+ * film hero, its captions and the mobile menu need are here, and they are
+ * scoped to those blocks so the light sections further down keep their own
+ * Tailwind styling. Values are unchanged; the file is merely de-minified.
+ *
+ * Load order: scroll-scrub.css (engine) first, then this file. */
+
+:root {
+  --gl-bg: #090909;
+  --gl-surface: #141310;
+  --gl-gold: #c9ab70;
+  --gl-ink: #f2eee8;
+  --gl-muted: #b9b4aa;
+  --gl-line: #39352d;
+  /* next/font/google variables from app/layout.js, same faces as the source. */
+  --gl-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --gl-body: var(--font-manrope), "Manrope", Arial, sans-serif;
+}
+
+html {
+  scroll-padding-top: 82px;
+}
+
+/* Body-level defaults of the source site, applied only to the ported blocks. */
+.site-header,
+.film-wrap,
+.menu-dialog,
+.skip-link {
+  font-family: var(--gl-body);
+  font-weight: 400;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.site-header,
+.film-wrap {
+  color: var(--gl-ink);
+}
+.site-header button,
+.site-header a,
+.film-wrap a,
+.menu-dialog button,
+.menu-dialog a {
+  -webkit-tap-highlight-color: transparent;
+}
+.site-header button:focus-visible,
+.site-header a:focus-visible,
+.film-wrap button:focus-visible,
+.film-wrap a:focus-visible,
+.menu-dialog button:focus-visible,
+.menu-dialog a:focus-visible {
+  outline: 2px solid var(--gl-gold);
+  outline-offset: 6px;
+}
+.film-wrap ::selection,
+.site-header ::selection {
+  background: var(--gl-gold);
+  color: var(--gl-bg);
+}
+
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 20px;
+  background: var(--gl-gold);
+  color: var(--gl-bg);
+  padding: 12px;
+  z-index: 60;
+}
+.skip-link:focus {
+  top: 15px;
+}
+
+/* ---------- Header ---------------------------------------------------- */
+/* Source layers: image 0, copy 3, navigation 10. The header is lifted to 50
+ * here because the sections below it on this page use z-20/z-30 internally. */
+.site-header {
+  height: 80px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 4.5vw;
+  background: linear-gradient(to bottom, rgba(9, 9, 9, 0.94), rgba(9, 9, 9, 0.64));
+  border-bottom: 1px solid rgba(201, 171, 112, 0.16);
+  backdrop-filter: blur(12px);
+}
+.desktop-nav {
+  display: flex;
+  gap: 30px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.desktop-nav a {
+  padding: 16px 0;
+  transition: color 0.25s;
+}
+.desktop-nav a:hover {
+  color: var(--gl-gold);
+}
+.brand-wordmark {
+  font: 500 34px/1 var(--gl-display);
+  letter-spacing: 0.13em;
+  color: var(--gl-gold);
+}
+.nav-visit {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+.nav-visit span {
+  transition: transform 0.3s;
+}
+.nav-visit:hover span {
+  transform: translateX(-5px);
+}
+.nav-visit svg {
+  color: var(--gl-gold);
+}
+.menu-trigger {
+  display: none;
+  background: none;
+  border: 0;
+}
+
+/* ---------- Film hero --------------------------------------------------- */
+.film-wrap {
+  position: relative;
+}
+.glamora-film .scroll-scrub__route,
+.glamora-film .scroll-scrub__progress {
+  display: none;
+}
+.glamora-film .scroll-scrub__chapter-pin {
+  position: relative;
+  align-items: flex-end;
+  padding: 80px 7vw 10vh;
+  min-height: 100dvh;
+}
+.glamora-film .scroll-scrub__copy {
+  width: min(600px, 49vw);
+  /* gsap.from('.scroll-scrub__copy', { y: 28, duration: 1.6, ease: 'power3.out' }) */
+  animation: gl-copy-in 1.6s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+@keyframes gl-copy-in {
+  from {
+    transform: translateY(28px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.glamora-film .scroll-scrub__copy:before {
+  inset: -3rem -4rem;
+  background: radial-gradient(ellipse at center, rgba(9, 9, 9, 0.5), transparent 75%);
+}
+.glamora-film .scroll-scrub__title {
+  font: 400 clamp(62px, 6.8vw, 106px) / 0.98 var(--gl-display);
+  letter-spacing: -0.035em;
+  max-width: 10ch;
+  text-wrap: initial;
+}
+.glamora-film .scroll-scrub__body {
+  font: 400 13px/1.8 var(--gl-body);
+  max-width: 36ch;
+  margin-top: 24px;
+  color: var(--gl-ink);
+}
+.glamora-film .scroll-scrub__kicker {
+  font: 500 10px/1.5 var(--gl-body);
+  letter-spacing: 0.24em;
+  margin-bottom: 20px;
+}
+.glamora-film .scroll-scrub__stage:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(9, 9, 9, 0.52), transparent 65%),
+    linear-gradient(0deg, rgba(9, 9, 9, 0.55), transparent 45%);
+}
+.hero-invitation {
+  display: flex;
+  gap: 36px;
+  align-items: center;
+  padding: 17px 24px;
+  background: var(--gl-gold);
+  color: var(--gl-bg);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.hero-invitation:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(9, 9, 9, 0.3);
+}
+.hero-invitation:active {
+  transform: translateY(1px);
+}
+.hero-invitation span:last-child {
+  font-size: 22px;
+  line-height: 1;
+}
+.film-caption {
+  position: absolute;
+  left: 7vw;
+  z-index: 4;
+  max-width: 570px;
+  pointer-events: auto;
+}
+.film-caption h2 {
+  margin: 0;
+  font-family: var(--gl-display);
+  font-weight: 400;
+  font-size: clamp(54px, 5.7vw, 86px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-shadow: 0 3px 28px rgba(9, 9, 9, 0.5);
+}
+.film-caption p {
+  margin: 26px 0 0;
+  color: var(--gl-ink);
+  font-size: 14px;
+}
+.caption-second {
+  top: 137dvh;
+}
+.caption-third {
+  top: 234dvh;
+}
+.film-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 30px;
+  color: var(--gl-gold);
+  font-size: 12px;
+}
+.film-link svg {
+  transition: transform 0.3s;
+}
+.film-link:hover svg {
+  transform: translateX(12px);
+}
+
+/* ---------- Mobile menu dialog ------------------------------------------ */
+.menu-dialog {
+  border: 0;
+  padding: 26px;
+  background: var(--gl-bg);
+  color: var(--gl-ink);
+  width: 100vw;
+  height: 100dvh;
+  max-width: 100vw;
+  max-height: 100dvh;
+  margin: auto;
+  overscroll-behavior: contain;
+}
+.menu-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(8px);
+}
+body:has(.menu-dialog[open]) {
+  overflow: hidden;
+}
+.menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--gl-gold);
+  font: 500 30px var(--gl-display);
+  letter-spacing: 0.1em;
+}
+.menu-top button {
+  background: none;
+  border: 0;
+  padding: 8px;
+  color: inherit;
+}
+.menu-dialog nav {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 70px;
+}
+.menu-dialog nav a {
+  font: 400 43px var(--gl-display);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.menu-dialog nav svg {
+  color: var(--gl-gold);
+}
+.menu-dialog > p {
+  margin: 70px 0 0;
+  font-size: 12px;
+  color: var(--gl-muted);
+}
+
+/* ---------- Breakpoints -------------------------------------------------- */
+@media (min-width: 1800px) {
+  .site-header {
+    padding-left: 7vw;
+    padding-right: 7vw;
+  }
+  .caption-second,
+  .caption-third {
+    left: 7vw;
+  }
+}
+
+@media (max-width: 1024px) {
+  .desktop-nav {
+    gap: 18px;
+  }
+  .nav-visit {
+    font-size: 10px;
+    gap: 9px;
+  }
+}
+
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: 66px;
+  }
+  .site-header {
+    height: 66px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .brand-wordmark {
+    font-size: 29px;
+  }
+  .desktop-nav,
+  .nav-visit {
+    display: none;
+  }
+  .menu-trigger {
+    display: block;
+    padding: 10px 0 10px 20px;
+    color: var(--gl-gold);
+  }
+  .glamora-film .scroll-scrub__chapter-pin {
+    padding: 80px 24px max(40px, 7dvh);
+  }
+  .glamora-film .scroll-scrub__copy {
+    width: 100%;
+    max-width: 420px;
+  }
+  .glamora-film .scroll-scrub__title {
+    font-size: clamp(52px, 13.3vw, 76px);
+    max-width: 10ch;
+  }
+  .glamora-film .scroll-scrub__kicker {
+    font-size: 9px;
+    margin-bottom: 16px;
+  }
+  .glamora-film .scroll-scrub__body {
+    font-size: 11px;
+    max-width: 31ch;
+    margin-top: 18px;
+  }
+  .glamora-film .scroll-scrub__actions {
+    margin-top: 23px;
+  }
+  .glamora-film .scroll-scrub__stage:after {
+    background: linear-gradient(0deg, rgba(9, 9, 9, 0.86), rgba(9, 9, 9, 0.04) 73%);
+  }
+  .hero-invitation {
+    padding: 14px 19px;
+    font-size: 9px;
+    gap: 26px;
+  }
+  .glamora-film .scroll-scrub__copy:before {
+    background: none;
+  }
+  .film-caption {
+    left: 24px;
+    right: 24px;
+    max-width: 450px;
+  }
+  .film-caption h2 {
+    font-size: clamp(48px, 12vw, 67px);
+  }
+  .film-caption p {
+    font-size: 12px;
+  }
+  .caption-second {
+    top: 151dvh;
+  }
+  .caption-third {
+    top: 247dvh;
+  }
+  .menu-dialog nav a {
+    font-size: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header *,
+  .film-wrap *,
+  .menu-dialog * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .film-caption {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding: 70px 24px;
+    background: var(--gl-bg);
+    max-width: none;
+  }
+  .glamora-film .scroll-scrub__chapter {
+    min-height: 100dvh !important;
+  }
+  .film-wrap .scroll-scrub__stage {
+    position: relative;
+  }
+  .glamora-film .scroll-scrub__chapter-pin {
+    position: relative;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    background: var(--gl-bg);
+    backdrop-filter: none;
+  }
+}
