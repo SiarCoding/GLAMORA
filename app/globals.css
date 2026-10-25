@@ -93,3 +93,259 @@ html {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-2%, -1%, 0); }
 }
+
+/* ── Showroom: kinetic type ──────────────────────────────────────────────────
+   Every transform is a calc() against --p (0..1), written by useScrollVar on
+   the nearest ancestor. No per-frame React renders, all on the compositor. */
+
+.kinetic-h {
+  display: flex;
+  flex-direction: column;
+  gap: 0.02em;
+  font-size: min(13vw, 290px);
+  line-height: 0.92;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+}
+
+.kinetic-line {
+  display: block;
+  white-space: nowrap;
+  padding: 0.04em 0; /* keep italic ascenders/descenders unclipped */
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* "Treten Sie näher." — enters cut off at the left, slides right and
+   straightens (−6° → 0°) until it rests fully in frame, 6vw inset. */
+.kinetic-line--a {
+  transform: translate3d(calc(-22vw + var(--p) * 28vw), 0, 0)
+    rotateY(calc(-6deg + var(--p) * 6deg));
+}
+
+/* "Im Detail." — the mirror: enters cut off at the right, slides left. */
+.kinetic-line--b {
+  align-self: flex-end;
+  transform: translate3d(calc(22vw - var(--p) * 28vw), 0, 0)
+    rotateY(calc(6deg - var(--p) * 6deg));
+}
+
+/* Deepest plane: stroke-only, slowest drift */
+.kinetic-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  font-size: 30vw;
+  line-height: 1;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(26, 22, 17, 0.09);
+  pointer-events: none;
+  user-select: none;
+  transform: translate3d(calc(-50% + (0.5 - var(--p)) * 16vw), -54%, 0);
+  will-change: transform;
+}
+
+.kinetic-rule {
+  transform: scaleX(var(--p));
+  will-change: transform;
+}
+
+/* Stroke twin in front of the gown (RobeShowcase) */
+.stroke-word {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(212, 175, 55, 0.26);
+}
+
+/* Occasion rows: each drifts on its own traversal progress */
+.occasion-word {
+  font-size: min(11vw, 200px);
+  will-change: transform;
+}
+.occasion-word--right {
+  transform: translate3d(calc((var(--p) - 0.5) * 12vw), 0, 0);
+}
+.occasion-word--left {
+  transform: translate3d(calc((0.5 - var(--p)) * 12vw), 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kinetic-line--a,
+  .kinetic-line--b,
+  .kinetic-ghost,
+  .occasion-word--right,
+  .occasion-word--left {
+    transform: none;
+  }
+}
+
+/* ── Showroom: collections side by side ───────────────────────────────────
+   --p (0..1) is the pinned progress of CollectionsSlider; --s is the glide,
+   0 → 1 while --p runs 0.43 → 0.57. The panels swing like two pages. */
+.collections-stage {
+  --s: clamp(0, calc((var(--p) - 0.43) / 0.14), 1);
+  perspective: 1800px;
+}
+.collections-track {
+  transform: translate3d(calc(var(--s) * -100vw), 0, 0);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.collections-panel { will-change: transform; }
+.collections-panel--a {
+  transform-origin: 100% 50%;
+  transform: rotateY(calc(var(--s) * 14deg)) scale(calc(1 - var(--s) * 0.06));
+}
+.collections-panel--b {
+  transform-origin: 0% 50%;
+  transform: rotateY(calc((1 - var(--s)) * -14deg)) scale(calc(0.94 + var(--s) * 0.06));
+}
+.collections-dot--a { opacity: calc(1 - var(--s) * 0.7); }
+.collections-dot--b { opacity: calc(0.3 + var(--s) * 0.7); }
+
+@media (prefers-reduced-motion: reduce) {
+  .collections-panel--a,
+  .collections-panel--b { transform: none; }
+}
+
+/* ── Garderobe: kinetic header + rack tilt ──────────────────────────────────
+   --p comes from useScrollVar("view") on each element; --q remaps it so the
+   motion completes while the element is still in the upper viewport. */
+.garderobe-head {
+  --q: clamp(0, calc(var(--p) * 2.3 - 0.1), 1);
+}
+.garderobe-h {
+  display: flex;
+  flex-direction: column;
+  font-size: min(12.5vw, 150px);
+  line-height: 0.92;
+  perspective: 1200px;
+}
+.garderobe-line {
+  display: block;
+  white-space: nowrap;
+  padding: 0.04em 0; /* keep italic ascenders/descenders unclipped */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+/* „Unsere" swings in from the left, „Abendkleider." from the right. */
+.garderobe-line--a {
+  transform-origin: 0% 50%;
+  opacity: calc(0.12 + var(--q) * 0.88);
+  transform: translate3d(calc((1 - var(--q)) * -16vw), 0, 0)
+    rotateY(calc((1 - var(--q)) * -32deg));
+}
+.garderobe-line--b {
+  margin-left: 0.5em;
+  transform-origin: 100% 50%;
+  opacity: calc(0.12 + var(--q) * 0.88);
+  transform: translate3d(calc((1 - var(--q)) * 20vw), 0, 0)
+    rotateY(calc((1 - var(--q)) * 32deg));
+}
+.garderobe-lede {
+  opacity: var(--q);
+  transform: translate3d(0, calc((1 - var(--q)) * 28px), 0);
+}
+/* Deepest plane: stroke-only, slowest drift */
+.garderobe-ghost {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  font-size: min(26vw, 420px);
+  line-height: 1;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(26, 22, 17, 0.08);
+  pointer-events: none;
+  user-select: none;
+  transform: translate3d(calc(-50% + (0.5 - var(--p)) * 22vw), -50%, 0);
+  will-change: transform;
+}
+
+/* The rack rises out of the floor plane: tipped back, low and slightly small
+   when it enters, upright by the time it reaches the upper third. */
+.garderobe-tilt {
+  --q: clamp(0, calc(var(--p) * 2.7), 1);
+  transform-origin: 50% 0%;
+  transform: perspective(1800px)
+    translate3d(0, calc((1 - var(--q)) * 90px), 0)
+    rotateX(calc((1 - var(--q)) * 24deg))
+    scale(calc(0.92 + var(--q) * 0.08));
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garderobe-line--a,
+  .garderobe-line--b,
+  .garderobe-lede,
+  .garderobe-tilt {
+    transform: none;
+    opacity: 1;
+  }
+  .garderobe-ghost { transform: translate(-50%, -50%); }
+}
+
+/* ── Garderobe (boutique rail) ─────────────────────────────────────────── */
+/* Rack — phones: two stacked rods of six; desktop: the rows sit side by side
+   on one rod. One shared gown height so hooks and hems line up. */
+.garderobe-rack {
+  /* 6 slots + one turned gown ≈ 1.3 × gown height must fit the width. */
+  --gown-h: min(40vh, calc((100vw - 24px) / 1.32));
+  --w-slot: calc(var(--gown-h) * 0.5625 * 0.29);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 0 12px 16px;
+}
+.garderobe-rail { touch-action: pan-y; }
+@media (min-width: 768px) {
+  .garderobe-rack {
+    --gown-h: min(70vh, 800px, calc((100vw - 120px) / 2.3));
+    flex-direction: row;
+    justify-content: center;
+    gap: 0;
+    padding: 0 2rem 2rem;
+  }
+}
+.garderobe-slot {
+  height: var(--gown-h);
+  width: var(--w-slot);
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.garderobe-item[data-active] .garderobe-slot { width: var(--w-front); }
+
+/* Colour-matched backdrops cancel under `darken`; only the gowns remain. */
+.garderobe-clip {
+  mix-blend-mode: darken;
+  /* Feather the frame edges so no clip boundary can ever read. */
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(180deg, #000 96%, transparent 100%);
+  -webkit-mask-composite: source-in;
+          mask-image:
+    linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(180deg, #000 96%, transparent 100%);
+          mask-composite: intersect;
+  transition: margin-left 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.garderobe-caption { animation: garderobe-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes garderobe-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.garderobe-dialog { animation: garderobe-fade 360ms ease both; }
+.garderobe-panel  { animation: garderobe-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.garderobe-detail-img { transition: opacity 500ms ease; }
+@keyframes garderobe-fade { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .garderobe-slot,
+  .garderobe-clip,
+  .garderobe-detail-img { transition: none; }
+  .garderobe-caption,
+  .garderobe-dialog,
+  .garderobe-panel { animation: none; }
+}

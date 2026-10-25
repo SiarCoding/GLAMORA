@@ -27,6 +27,11 @@ import {
  * @param {"cover"|"contain"} [opts.fit="cover"] how each frame fills the canvas.
  *                                       Use "contain" for background-free (alpha)
  *                                       subjects that must never be cropped.
+ * @param {import("react").RefObject<HTMLElement>} [opts.scrollRef] use an
+ *                                       outer scroll wrapper instead of the
+ *                                       returned sectionRef (shared stages)
+ * @param {[number, number]} [opts.range=[0, 1]] slice of that wrapper's scroll
+ *                                       progress that plays this sequence
  * @returns {object} refs + state to wire to your JSX
  */
 export function useScrollFrameSequence({
@@ -39,13 +44,17 @@ export function useScrollFrameSequence({
   fit = "cover",
   smoothing = 0.11,
   padding = 0,
+  scrollRef,
+  range = [0, 1],
 }) {
+  const [rangeStart, rangeEnd] = range;
   const drawImageFit =
     fit === "contain"
       ? (ctx, img, w, h, fx, fy) =>
           drawContainImage(ctx, img, w, h, fx, fy, padding)
       : drawCoverImage;
-  const sectionRef = useRef(null); // tall scroll wrapper
+  const ownSectionRef = useRef(null); // tall scroll wrapper
+  const sectionRef = scrollRef ?? ownSectionRef;
   const canvasRef = useRef(null);
   const imagesRef = useRef([]);
 
@@ -104,7 +113,8 @@ export function useScrollFrameSequence({
       const vh = window.innerHeight;
       const scrollable = rect.height - vh;
       const scrolled = Math.min(Math.max(-rect.top, 0), scrollable);
-      return scrollable > 0 ? scrolled / scrollable : 0;
+      const p = scrollable > 0 ? scrolled / scrollable : 0;
+      return Math.min(Math.max((p - rangeStart) / (rangeEnd - rangeStart), 0), 1);
     };
 
     // Draw the frame nearest to progress p. Walks backward to the nearest
@@ -224,7 +234,7 @@ export function useScrollFrameSequence({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
     };
-  }, [frameCount, focalX, focalY, smoothing, fit, padding]);
+  }, [frameCount, focalX, focalY, smoothing, fit, padding, sectionRef, rangeStart, rangeEnd]);
 
   return {
     sectionRef,

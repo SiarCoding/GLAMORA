@@ -3,6 +3,7 @@ import GlamoraHero from "@/components/hero/GlamoraHero";
 import HeroSequence from "@/components/HeroSequence";
 import SechsRobenSection from "@/components/SechsRobenSection";
 import ShowroomSection from "@/components/ShowroomSection";
+import GarderobeSection from "@/components/GarderobeSection";
 import CraftSection from "@/components/CraftSection";
 import FittingSection from "@/components/FittingSection";
 import Footer from "@/components/Footer";
@@ -15,6 +16,7 @@ export default function Home() {
       <GlamoraHero />
       <HeroSequence />
       <ShowroomSection />
+      <GarderobeSection />
       <SechsRobenSection />
       <CraftSection />
       <FittingSection />
