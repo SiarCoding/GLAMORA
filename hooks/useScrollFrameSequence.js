@@ -32,6 +32,8 @@ import {
  *                                       returned sectionRef (shared stages)
  * @param {[number, number]} [opts.range=[0, 1]] slice of that wrapper's scroll
  *                                       progress that plays this sequence
+ * @param {boolean} [opts.lazy=false]   wait to preload until the section is
+ *                                       within ~1.5 viewports (long pages)
  * @returns {object} refs + state to wire to your JSX
  */
 export function useScrollFrameSequence({
@@ -46,6 +48,7 @@ export function useScrollFrameSequence({
   padding = 0,
   scrollRef,
   range = [0, 1],
+  lazy = false,
 }) {
   const [rangeStart, rangeEnd] = range;
   const drawImageFit =
@@ -65,8 +68,31 @@ export function useScrollFrameSequence({
   const [firstFrameReady, setFirstFrameReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
+  // -- Defer preloading until the section approaches the viewport (lazy) ------
+  const [inRange, setInRange] = useState(!lazy);
+  useEffect(() => {
+    if (!lazy || inRange) return;
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInRange(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInRange(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "150% 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [lazy, inRange, sectionRef]);
+
   // -- Preload frames --------------------------------------------------------
   useEffect(() => {
+    if (!inRange) return;
     const paths = buildFramePaths({ basePath, frameCount, pad, ext });
     const { images, firstFrameReady: firstReady } = preloadFrames(
       paths,
@@ -85,7 +111,7 @@ export function useScrollFrameSequence({
         }
       }
     });
-  }, [basePath, frameCount, pad, ext, fit, padding]);
+  }, [basePath, frameCount, pad, ext, fit, padding, inRange]);
 
   // -- Scroll → target, rAF loop → eased frame -------------------------------
   useEffect(() => {

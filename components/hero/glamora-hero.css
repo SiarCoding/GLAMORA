@@ -13,9 +13,10 @@
   --gl-ink: #f2eee8;
   --gl-muted: #b9b4aa;
   --gl-line: #39352d;
-  /* next/font/google variables from app/layout.js, same faces as the source. */
-  --gl-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
-  --gl-body: var(--font-manrope), "Manrope", Arial, sans-serif;
+  /* Typefaces come from the site-wide tokens in app/globals.css. */
+  --gl-display: var(--font-heading);
+  --gl-body: var(--font-text);
+  --gl-brand: var(--font-brand);
 }
 
 html {
@@ -104,7 +105,7 @@ html {
   color: var(--gl-gold);
 }
 .brand-wordmark {
-  font: 500 34px/1 var(--gl-display);
+  font: 500 34px/1 var(--gl-brand);
   letter-spacing: 0.13em;
   color: var(--gl-gold);
 }
@@ -165,7 +166,7 @@ html {
   background: radial-gradient(ellipse at center, rgba(9, 9, 9, 0.5), transparent 75%);
 }
 .glamora-film .scroll-scrub__title {
-  font: 400 clamp(62px, 6.8vw, 106px) / 0.98 var(--gl-display);
+  font: 300 clamp(62px, 6.8vw, 106px) / 0.98 var(--gl-display);
   letter-spacing: -0.035em;
   max-width: 10ch;
   text-wrap: initial;
@@ -281,7 +282,7 @@ body:has(.menu-dialog[open]) {
   align-items: center;
   justify-content: space-between;
   color: var(--gl-gold);
-  font: 500 30px var(--gl-display);
+  font: 500 30px var(--gl-brand);
   letter-spacing: 0.1em;
 }
 .menu-top button {
@@ -303,6 +304,24 @@ body:has(.menu-dialog[open]) {
   justify-content: space-between;
 }
 .menu-dialog nav svg {
+  color: var(--gl-gold);
+}
+/* Keyword landing pages — a quieter second list under the main links. */
+.menu-dialog nav.menu-topics {
+  margin-top: 44px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(201, 171, 112, 0.2);
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+}
+.menu-dialog nav.menu-topics a {
+  font: 400 13px var(--gl-body);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gl-muted);
+}
+.menu-dialog nav.menu-topics a:hover {
   color: var(--gl-gold);
 }
 .menu-dialog > p {

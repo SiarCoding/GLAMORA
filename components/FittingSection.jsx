@@ -37,10 +37,10 @@ export default function FittingSection() {
             <span aria-hidden className="relative h-px w-6 bg-current transition-all group-hover:w-10" />
           </a>
           <a
-            href="tel:+494012345678"
+            href="/termin"
             className="text-[11px] uppercase tracking-widest2 text-noir/60 transition-colors hover:text-gold-600"
           >
-            oder anrufen · +49 40 1234 5678
+            So läuft die Anprobe ab
           </a>
         </div>
 
@@ -50,9 +50,9 @@ export default function FittingSection() {
               Atelier
             </div>
             <div className="mt-3 font-display text-[18px] text-noir">
-              Neuer Wall, Hamburg
+              Lüneburger Straße 33
             </div>
-            <div className="mt-1 text-[12px] text-noir/45">Nur nach Vereinbarung</div>
+            <div className="mt-1 text-[12px] text-noir/45">21073 Hamburg-Harburg · nach Vereinbarung</div>
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-widest2 text-gold-600">

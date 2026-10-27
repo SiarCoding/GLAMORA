@@ -6,15 +6,25 @@ import { ArrowUpRight, List, X } from "@phosphor-icons/react";
 /* Header + mobile menu, 1:1 from the Higgsfield site (glamora-hamburg
  * routes/index.tsx). Labels are unchanged; the anchors point at the sections
  * that exist on THIS page:
- *   Kollektion        → #kollektion  (the former hero, now the 2nd chapter)
- *   Anlässe           → #showroom
- *   Details           → #handwerk
- *   Boutique besuchen → #anprobe     (Atelier / Termin) */
+ *   Kollektion        → /#kollektion (homepage chapter, works from subpages)
+ *   Abendkleider / Abayas → keyword landing pages
+ *   Boutique besuchen → /termin */
 const MENU_LINKS = [
-  ["Kollektion", "#kollektion"],
-  ["Anlässe", "#showroom"],
-  ["Details", "#handwerk"],
-  ["Boutique besuchen", "#anprobe"],
+  ["Kollektion", "/#kollektion"],
+  ["Abendkleider", "/abendkleider-hamburg"],
+  ["Abayas", "/abaya-hamburg"],
+  ["Boutique besuchen", "/termin"],
+];
+
+// Secondary list in the menu dialog — keyword landing pages.
+const TOPIC_LINKS = [
+  ["Abiballkleider", "/abiballkleider-hamburg"],
+  ["Verlobung & Nikah", "/verlobungskleid-hamburg"],
+  ["Hijab-Abendkleider", "/hijab-abendkleider-hamburg"],
+  ["Große Größen", "/abendkleider-grosse-groessen-hamburg"],
+  ["Das Geschäft", "/abendmode-geschaeft-hamburg"],
+  ["Harburg", "/abendkleider-harburg"],
+  ["Über uns", "/ueber-uns"],
 ];
 
 export default function Navigation() {
@@ -32,19 +42,19 @@ export default function Navigation() {
 
   return (
     <>
-      <a className="skip-link" href="#kollektion">
-        Direkt zur Kollektion
+      <a className="skip-link" href="#inhalt">
+        Direkt zum Inhalt
       </a>
 
       <header className="site-header">
         <nav className="desktop-nav" aria-label="Hauptnavigation">
-          <a href="#kollektion">Kollektion</a>
-          <a href="#showroom">Anlässe</a>
+          <a href="/abendkleider-hamburg">Abendkleider</a>
+          <a href="/abaya-hamburg">Abayas</a>
         </nav>
-        <a href="#auftakt" className="brand-wordmark" aria-label="GLAMORA Startseite">
+        <a href="/" className="brand-wordmark" aria-label="GLAMORA Startseite">
           GLAMORA
         </a>
-        <a className="nav-visit" href="#anprobe">
+        <a className="nav-visit" href="/termin">
           <span>Boutique besuchen</span>
           <ArrowUpRight size={16} />
         </a>
@@ -75,6 +85,13 @@ export default function Navigation() {
             <a key={href} href={href} onClick={closeMenu}>
               {label}
               <ArrowUpRight size={28} weight="light" />
+            </a>
+          ))}
+        </nav>
+        <nav className="menu-topics" aria-label="Themen">
+          {TOPIC_LINKS.map(([label, href]) => (
+            <a key={href} href={href} onClick={closeMenu}>
+              {label}
             </a>
           ))}
         </nav>

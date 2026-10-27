@@ -1,0 +1,12 @@
+Self-hosted web fonts for glamora.hamburg (no third-party font requests, DSGVO).
+
+Urbanist            — Copyright The Urbanist Project Authors
+                      https://github.com/coreyhu/Urbanist
+Cormorant Garamond  — Copyright The Cormorant Project Authors
+                      https://github.com/CatharsisFonts/Cormorant
+
+Both are licensed under the SIL Open Font License, Version 1.1:
+https://openfontlicense.org/open-font-license-official-text/
+
+Files: WOFF2 subsets (latin, latin-ext) as distributed by Google Fonts,
+loaded via @font-face in app/globals.css.

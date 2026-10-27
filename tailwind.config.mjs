@@ -33,8 +33,10 @@ export default {
         line: "#E3DCCF", // hairline borders on light
       },
       fontFamily: {
-        display: ["var(--font-playfair)", "Playfair Display", "serif"],
-        sans: ["var(--font-urbanist)", "Urbanist", "Inter", "system-ui", "sans-serif"],
+        // Both resolve to the tokens in app/globals.css.
+        display: ["var(--font-heading)"],
+        sans: ["var(--font-text)"],
+        brand: ["var(--font-brand)"],
       },
       letterSpacing: {
         widest2: "0.32em",

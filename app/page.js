@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="relative bg-porcelain">
+    <main id="inhalt" className="relative bg-porcelain">
       <Navigation />
       {/* Film hero from the Higgsfield site; the former hero follows as chapter 2. */}
       <GlamoraHero />
