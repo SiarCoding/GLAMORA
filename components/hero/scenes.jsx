@@ -14,8 +14,11 @@ export const scrollScrubScenes = [
     id: "auftakt",
     label: "GLAMORA",
     title: "Dein Abend. Dein Auftritt.",
-    body: "Abendkleider für die Momente, die dir gehören. Entdecke GLAMORA in Hamburg.",
-    kicker: "Abendmode in Hamburg",
+    body: "Abendkleider und Abayas aus Dubai ab 70 € – private Anprobe in der Lüneburger Straße 33, Hamburg-Harburg.",
+    // Keyword H1 of the homepage; the slogan above renders as h2.
+    kicker: "Abendkleider & Abayas in Hamburg-Harburg",
+    kickerLevel: "h1",
+    headingLevel: "h2",
     clip: "/assets/world/scene-01.mp4",
     mobileClip: "/assets/world/scene-01-mobile.mp4",
     poster: "/assets/world/scene-01-poster.png",

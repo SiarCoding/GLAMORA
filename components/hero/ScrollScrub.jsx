@@ -581,6 +581,8 @@ export function ScrollScrub({
           }
           const Heading =
             scene.headingLevel ?? (segment.sectionIndex === 0 ? "h1" : "h2");
+          // A scene may promote its kicker to the page heading (keyword H1).
+          const Kicker = scene.kickerLevel ?? "p";
 
           return (
             <article
@@ -594,7 +596,7 @@ export function ScrollScrub({
               <div className="scroll-scrub__chapter-pin">
                 <div className="scroll-scrub__copy">
                   {scene.kicker ? (
-                    <p className="scroll-scrub__kicker">{scene.kicker}</p>
+                    <Kicker className="scroll-scrub__kicker">{scene.kicker}</Kicker>
                   ) : null}
                   <Heading className="scroll-scrub__title">{scene.title}</Heading>
                   <p className="scroll-scrub__body">{scene.body}</p>

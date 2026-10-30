@@ -16,6 +16,7 @@
 //
 // Names and copy are placeholders until the atelier's real product names are
 // in. `productUrl: null` = no product page yet; the CTA then books a fitting.
+// `price` (number, EUR) — TODO: echten Preis je Robe eintragen → Offer im Schema.
 export const GOWNS = [
   {
     id: "olive-perlen-korsett",

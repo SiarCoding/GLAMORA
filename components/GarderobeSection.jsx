@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, X } from "@phosphor-icons/react";
 import { GOWNS } from "@/components/garderobe/gowns";
 import { useScrollVar } from "@/hooks/useScrollVar";
+import { SITE } from "@/lib/site";
 
 // „Die Garderobe" — the boutique rail. Twelve real gowns from the atelier,
 // re-shot via Higgsfield as 4K catalogue stills (GPT Image 2.5, reference =
@@ -26,8 +27,8 @@ const REWIND_RATE = 2; // turn-back speed (s of clip per s) → ~0.8 s
 
 const pad = (n) => String(n).padStart(2, "0");
 
-// Absolute URLs for structured data; set NEXT_PUBLIC_SITE_URL in production.
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+// Absolute URLs for structured data come from the one NAP source.
+const SITE_URL = SITE.url;
 
 // Product list for search engines and LLMs — every gown on the rack.
 function productJsonLd() {
@@ -49,6 +50,19 @@ function productJsonLd() {
         material: g.material,
         brand: { "@type": "Brand", name: "GLAMORA" },
         ...(g.productUrl ? { url: g.productUrl } : {}),
+        // Offer only with a real price per gown (gowns.js → price) — Google
+        // rejects invented prices; without one the item stays a plain Product.
+        ...(g.price
+          ? {
+              offers: {
+                "@type": "Offer",
+                price: g.price,
+                priceCurrency: "EUR",
+                availability: "https://schema.org/InStoreOnly",
+                seller: { "@id": `${SITE.url}/#store` },
+              },
+            }
+          : {}),
       },
     })),
   };

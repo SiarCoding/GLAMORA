@@ -1,37 +1,20 @@
 import { notFound } from "next/navigation";
-import LandingPage, { ogImage } from "@/components/seiten/LandingPage";
-import { PAGES, PAGE_BY_SLUG } from "@/lib/pages";
+import LandingPage from "@/components/seiten/LandingPage";
+import { findPage, pagesFor } from "@/lib/registry";
+import { landingMetadata } from "@/lib/meta";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return PAGES.map((p) => ({ slug: p.slug }));
+  return pagesFor("de").map((p) => ({ slug: p.slug }));
 }
 
 export function generateMetadata({ params }) {
-  const page = PAGE_BY_SLUG[params.slug];
-  if (!page) return {};
-  const image = ogImage(page);
-  return {
-    title: { absolute: page.title },
-    description: page.description,
-    keywords: page.keywords,
-    alternates: { canonical: `/${page.slug}` },
-    openGraph: {
-      type: "website",
-      locale: "de_DE",
-      siteName: "GLAMORA",
-      url: `/${page.slug}`,
-      title: page.title,
-      description: page.description,
-      images: [{ url: image, width: 1920, height: 1080, alt: page.h1 }],
-    },
-    twitter: { card: "summary_large_image", title: page.title, description: page.description, images: [image] },
-  };
+  return landingMetadata("de", params.slug);
 }
 
 export default function Page({ params }) {
-  const page = PAGE_BY_SLUG[params.slug];
+  const page = findPage("de", params.slug);
   if (!page) notFound();
   return <LandingPage page={page} />;
 }

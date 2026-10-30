@@ -30,6 +30,7 @@ function clamp(v, min, max) {
  * @param {string[]} [props.points]
  * @param {number} [props.focalX]   horizontal focal point for the framed crop
  * @param {boolean} [props.flip]    subject left, copy right
+ * @param {string} [props.imageAlt] alt text for the poster still (image search)
  */
 export default function SceneSequence({
   basePath,
@@ -41,6 +42,7 @@ export default function SceneSequence({
   points = [],
   focalX = 0.6,
   flip = false,
+  imageAlt = "",
 }) {
   const cut = variant === "cut";
   const { sectionRef, canvasRef, progress, firstFrameReady } =
@@ -103,8 +105,7 @@ export default function SceneSequence({
               {cut ? null : (
                 <img
                   src={`${basePath}/frame-001.webp`}
-                  alt=""
-                  aria-hidden="true"
+                  alt={imageAlt ? `${title} ${imageAlt}` : ""}
                   loading="lazy"
                   decoding="async"
                   className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${

@@ -421,3 +421,25 @@ html {
   .garderobe-dialog,
   .garderobe-panel { animation: none; }
 }
+
+/* Arabic pages (dir="rtl"): Urbanist has no Arabic glyphs, and letter-spacing
+   tears apart the joined Arabic script — use a system Arabic face, no tracking,
+   no uppercase. */
+[lang="ar"] {
+  --font-heading: "Segoe UI", "Geeza Pro", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, sans-serif;
+  --font-text: "Segoe UI", "Geeza Pro", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, sans-serif;
+  font-family: var(--font-text);
+}
+[lang="ar"] *:not([dir="ltr"]):not([dir="ltr"] *) {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+[lang="ar"] .font-display,
+[lang="ar"] .font-sans {
+  font-family: var(--font-heading);
+}
+[lang="ar"] p,
+[lang="ar"] dd,
+[lang="ar"] td {
+  line-height: 1.95;
+}
