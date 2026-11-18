@@ -19,8 +19,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Scroll frames and OG images rarely change — cache for 30 days.
-        source: "/:dir(seiten|og|hero-sequence|showroom|atelier-sequence|abendkleider)/:path*",
+        // Scroll frames, hero clip/posters, fonts and OG images rarely change — cache for 30 days.
+        source: "/:dir(seiten|og|hero-sequence|showroom|atelier-sequence|abendkleider|assets|fonts)/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
       },
       {

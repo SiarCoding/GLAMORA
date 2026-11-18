@@ -29,6 +29,7 @@ const CHAPTERS = [
     body: "Jedes Stück bleibt einer einzigen Kundin vorbehalten. Keine Reproduktion. Kein zweiter Auftritt.",
     start: 0.7,
     end: 1.0,
+    cta: { label: "Exklusiven Termin vereinbaren", href: "#anprobe" },
   },
 ];
 
@@ -68,6 +69,11 @@ export default function HeroSequence() {
       frameCount: FRAME_COUNT,
       focalX,
       focalY: 0.5,
+      // Near the bottom of the page as the closing CTA: frames (~30 MB) only
+      // start streaming once the section is ~1.5 viewports away, so bounces
+      // and visitors who never scroll this far don't pay for them.
+      lazy: true,
+      lazyMargin: "150%",
     });
 
   const chapterStates = useMemo(
@@ -87,7 +93,7 @@ export default function HeroSequence() {
   return (
     <section
       ref={sectionRef}
-      id="kollektion"
+      id="einzigartig"
       className="relative w-full"
       style={{ height: "350vh" }}
     >
@@ -189,6 +195,21 @@ export default function HeroSequence() {
                     >
                       {chapter.body}
                     </p>
+                    {chapter.cta && (
+                      <a
+                        href={chapter.cta.href}
+                        tabIndex={chapter.opacity > 0.5 ? 0 : -1}
+                        className={`group relative mt-9 inline-flex items-center gap-4 overflow-hidden border border-gold/70 px-8 py-4 text-[11px] uppercase tracking-widest2 text-bone transition-colors ${
+                          chapter.opacity > 0.5 ? "pointer-events-auto" : "pointer-events-none"
+                        }`}
+                      >
+                        <span className="absolute inset-0 -translate-x-full bg-gold transition-transform duration-700 group-hover:translate-x-0" />
+                        <span className="relative transition-colors duration-300 group-hover:text-black">
+                          {chapter.cta.label}
+                        </span>
+                        <span aria-hidden className="relative h-px w-6 bg-current transition-all group-hover:w-10 group-hover:text-black" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

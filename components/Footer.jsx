@@ -95,7 +95,7 @@ export default function Footer({ locale = "de", alternates }) {
 
       <div className="mx-auto mt-16 flex max-w-[1480px] flex-col items-center justify-between gap-6 border-t border-line px-6 pt-8 md:flex-row md:px-10">
         <div className="text-[10px] uppercase tracking-widest2 text-noir/35" dir="ltr">
-          GLAMORA Hamburg · Dubai · © {new Date().getFullYear()}
+          GLAMORA Hamburg · © {new Date().getFullYear()}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-6 text-[10px] uppercase tracking-widest2 text-noir/45">
           <a href="/impressum" className="transition-colors hover:text-gold-600">{l.imprint}</a>

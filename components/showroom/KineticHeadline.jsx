@@ -6,7 +6,7 @@ import { useScrollVar } from "@/hooks/useScrollVar";
 /**
  * Act I of the showroom — the headline as a pinned, kinetic title card.
  *
- * The stage sticks for ~1.2 viewports while `--p` runs 0 → 1. "Treten Sie
+ * The stage sticks for ~0.25 viewports while `--p` runs 0 → 1. "Treten Sie
  * näher." travels left → right across the full width, "Im Detail." counters
  * right → left in gold italic, both with a faint rotateY so the lines read as
  * planes swinging past the camera. A stroke-only "Showroom" sits deepest and
@@ -15,10 +15,12 @@ import { useScrollVar } from "@/hooks/useScrollVar";
  */
 export default function KineticHeadline() {
   const ref = useRef(null);
-  useScrollVar(ref, { mode: "pin", smoothing: 0.14 });
+  // 125vh = the stage pins for only a quarter viewport of scrolling (was 1.2),
+  // so the lines sweep ~5× faster; low smoothing keeps them glued to the wheel.
+  useScrollVar(ref, { mode: "pin", smoothing: 0.06 });
 
   return (
-    <div ref={ref} className="relative h-[220vh]" style={{ "--p": 0 }}>
+    <div ref={ref} className="relative h-[125vh]" style={{ "--p": 0 }}>
       <div className="grain sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden bg-porcelain">
         {/* Deepest plane */}
         <span aria-hidden="true" className="kinetic-ghost font-display">

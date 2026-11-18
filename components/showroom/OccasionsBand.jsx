@@ -17,7 +17,7 @@ const OCCASIONS = [
 
 function OccasionRow({ word, line, index }) {
   const ref = useRef(null);
-  useScrollVar(ref, { mode: "view", smoothing: 0.16 });
+  useScrollVar(ref, { mode: "view", smoothing: 0.07 });
   const right = index % 2 === 1;
 
   return (

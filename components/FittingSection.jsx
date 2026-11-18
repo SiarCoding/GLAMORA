@@ -1,3 +1,5 @@
+import { SITE } from "@/lib/site";
+
 export default function FittingSection() {
   return (
     <section
@@ -29,7 +31,7 @@ export default function FittingSection() {
 
         <div className="mt-12 flex flex-col items-center justify-center gap-6 md:flex-row">
           <a
-            href="mailto:atelier@glamora.hamburg"
+            href={`mailto:${SITE.email}`}
             className="group relative inline-flex items-center justify-center gap-4 overflow-hidden bg-noir px-10 py-5 text-[11px] uppercase tracking-widest2 text-porcelain transition-all"
           >
             <span className="absolute inset-0 -translate-x-full bg-gold transition-transform duration-700 group-hover:translate-x-0" />
@@ -68,7 +70,7 @@ export default function FittingSection() {
               Kontakt
             </div>
             <div className="mt-3 font-display text-[18px] text-noir">
-              atelier@glamora.hamburg
+              {SITE.email}
             </div>
             <div className="mt-1 text-[12px] text-noir/45">Diskretion versteht sich</div>
           </div>

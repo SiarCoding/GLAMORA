@@ -131,15 +131,16 @@ export default function GarderobeSection() {
               Die Garderobe · Atelier Hamburg
             </span>
           </div>
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          {/* flex-wrap: the lede sits beside the headline where both fit, else below. */}
+          <div className="flex flex-wrap items-end justify-between gap-x-16 gap-y-8">
             <h2 id="garderobe-title" className="garderobe-h font-display tracking-tight text-noir">
-              <span className="garderobe-line garderobe-line--a">Unsere </span>
+              <span className="garderobe-line garderobe-line--a">Ein kleiner Ausschnitt </span>
               <span className="garderobe-line garderobe-line--b italic text-gold-500">
-                Abendkleider.
+                unserer Abendkleider.
               </span>
             </h2>
             <p className="garderobe-lede max-w-sm text-[14px] leading-[1.8] text-noir/60 md:mb-4">
-              {GOWNS.length} Abendkleider aus der GLAMORA Dubai Kollektion:
+              {GOWNS.length} von {SITE.facts.models} Modellen aus der GLAMORA Dubai Kollektion:
               Korsett-Roben mit Perlenstickerei, Plissee-Kleider mit Kristallgürtel,
               Chiffon-Roben mit Schal und Meerjungfrau-Kleider aus Satin. Jedes Modell
               können Sie nach Vereinbarung in unserem Atelier in Hamburg anprobieren.

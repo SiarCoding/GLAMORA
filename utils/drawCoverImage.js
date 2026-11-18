@@ -110,10 +110,13 @@ function clamp(v, min, max) {
  */
 export function sizeCanvasToBox(canvas, maxDpr = 2) {
   if (!canvas) return null;
-  const rect = canvas.getBoundingClientRect();
+  // Layout size, NOT getBoundingClientRect(): the latter includes CSS
+  // transforms on ancestors (scale, rotateY of a showroom panel), which sized
+  // the backing store too narrow and stretched the drawn frame once the
+  // transform relaxed.
   const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
-  const w = Math.max(1, Math.floor(rect.width));
-  const h = Math.max(1, Math.floor(rect.height));
+  const w = Math.max(1, Math.floor(canvas.clientWidth));
+  const h = Math.max(1, Math.floor(canvas.clientHeight));
   canvas.width = Math.floor(w * dpr);
   canvas.height = Math.floor(h * dpr);
   const ctx = canvas.getContext("2d");

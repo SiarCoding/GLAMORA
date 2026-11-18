@@ -7,13 +7,13 @@ export const metadata = {
   alternates: { canonical: "/impressum" },
 };
 
-/* TODO vor dem Livegang: alle Felder in LEGAL mit echten Angaben füllen
- * (Angaben nach § 5 DDG). Die Rechtsform bestimmt, welche Zeilen Pflicht sind. */
+/* Angaben nach § 5 DDG. Einzelunternehmen ohne Handelsregistereintrag —
+ * Pflicht ist der volle Name der Inhaberin; Registerzeile entfällt. */
 const LEGAL = {
-  owner: "[Vor- und Nachname der Inhaberin / Geschäftsführung – bitte ergänzen]",
-  legalForm: "[Rechtsform, z. B. Einzelunternehmen / e. K. / GmbH – bitte ergänzen]",
-  register: null, // z. B. "Amtsgericht Hamburg, HRB 123456"
-  vatId: null, // z. B. "DE123456789"
+  owner: "Farsana Alizadah",
+  legalForm: "Einzelunternehmen",
+  register: null, // nur bei Eintragung (e. K.), z. B. "Amtsgericht Hamburg, HRA 123456"
+  vatId: null, // TODO: USt-IdNr. ergänzen, falls vorhanden, z. B. "DE123456789"
 };
 
 const h = "font-display text-[24px] text-noir";
@@ -25,9 +25,9 @@ export default function Impressum() {
       <p>
         {SITE.legalName}
         <br />
-        {LEGAL.legalForm}
+        Inhaberin: {LEGAL.owner}
         <br />
-        {LEGAL.owner}
+        {LEGAL.legalForm}
         <br />
         {SITE.street}
         <br />

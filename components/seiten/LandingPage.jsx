@@ -1,6 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SceneSequence from "@/components/seiten/SceneSequence";
+import SechsRobenSection from "@/components/SechsRobenSection";
 import { SITE, ADDRESS_LINE, STORE_ID } from "@/lib/site";
 import { LOCALES, UI, formatUpdated } from "@/lib/i18n";
 import { PAGE_BY_PATH, alternatesOf, absolute } from "@/lib/registry";
@@ -327,7 +328,18 @@ export default function LandingPage({ page }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd(page)) }}
         />
         <Navigation locale={page.locale} alternates={alternatesOf(page)} />
-        <Hero page={page} t={t} />
+        {page.filmHero ? (
+          // SEO: the text hero (H1, lead, fact box) stays FIRST in the HTML;
+          // CSS `order` only paints the decorative film above it.
+          <div className="flex flex-col">
+            <div className="order-2">
+              <Hero page={page} t={t} />
+            </div>
+            <SechsRobenSection hero className="order-1" />
+          </div>
+        ) : (
+          <Hero page={page} t={t} />
+        )}
         <SceneSequence {...first} imageAlt={imageAlt} />
         <Sections sections={page.sections.slice(0, mid)} />
         <SceneSequence {...second} imageAlt={imageAlt} flip />

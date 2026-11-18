@@ -48,7 +48,15 @@ function actOpacity(progress, act) {
   return 1;
 }
 
-export default function SechsRobenSection() {
+/**
+ * @param {boolean} [hero=false] used as the visual page hero of a landing page
+ *   (/abendkleider-hamburg): frames load immediately, the first act is already
+ *   on screen at scroll 0, and the act titles render as <p> — the page's real
+ *   H1 / H2 outline lives in the server-rendered text below, so this decorative
+ *   film adds no competing headings.
+ * @param {string} [className]
+ */
+export default function SechsRobenSection({ hero = false, className = "" }) {
   const { sectionRef, canvasRef, progress, firstFrameReady, loadProgress } =
     useScrollFrameSequence({
       basePath: BASE_PATH,
@@ -57,12 +65,21 @@ export default function SechsRobenSection() {
       focalY: 0.5,
       // A touch heavier than the hero — this is a slow, deliberate chapter.
       smoothing: 0.14,
+      // As a page hero it is on screen at once; further down, load on approach.
+      lazy: !hero,
+      lazyMargin: "200%",
     });
 
-  const actStates = useMemo(
-    () => ACTS.map((a) => ({ ...a, opacity: actOpacity(progress, a) })),
-    [progress]
+  const acts = useMemo(
+    // Hero: the first act starts before 0, so it is fully visible on arrival.
+    () => (hero ? ACTS.map((a, i) => (i === 0 ? { ...a, start: -0.2 } : a)) : ACTS),
+    [hero]
   );
+  const actStates = useMemo(
+    () => acts.map((a) => ({ ...a, opacity: actOpacity(progress, a) })),
+    [acts, progress]
+  );
+  const ActTitle = hero ? "p" : "h2";
 
   // The big „VI" watermark holds while the first two (left) acts are on screen,
   // then recedes for the centred closing line.
@@ -71,8 +88,9 @@ export default function SechsRobenSection() {
   return (
     <section
       ref={sectionRef}
-      id="roben"
-      className="relative w-full"
+      id={hero ? "film" : "roben"}
+      aria-hidden={hero ? "true" : undefined}
+      className={`relative w-full ${className}`}
       style={{ height: "340vh" }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
@@ -187,9 +205,9 @@ export default function SechsRobenSection() {
                         {act.eyebrow}
                       </span>
                     </div>
-                    <h2 className="whitespace-pre-line font-sans text-[40px] font-extralight leading-[1.0] tracking-[-0.03em] text-bone md:text-[64px] lg:text-[76px]">
+                    <ActTitle className="whitespace-pre-line font-sans text-[40px] font-extralight leading-[1.0] tracking-[-0.03em] text-bone md:text-[64px] lg:text-[76px]">
                       {act.title}
-                    </h2>
+                    </ActTitle>
                     {act.body ? (
                       <p className="mt-6 max-w-md text-[13px] font-light leading-[1.75] text-bone/70 md:text-[14px]">
                         {act.body}

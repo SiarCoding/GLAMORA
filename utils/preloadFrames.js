@@ -34,43 +34,34 @@ export function preloadFrames(paths, onProgress) {
     }
   });
 
-  // Remaining frames load in waves so a slow connection still gets the early
-  // visible range first.
+  // Remaining frames stream in order with a fixed number of requests in
+  // flight: early frames (the visible range) arrive first, and the sequence
+  // never floods the connection ahead of the hero image, fonts and scripts.
+  // `fetchPriority = "low"` keeps them behind anything the page needs to paint.
   const queue = paths.slice(1).map((src, i) => ({ src, index: i + 1 }));
-  const concurrent = 6;
+  const maxInFlight = 8;
   let cursor = 0;
 
+  const startNext = () => {
+    if (cursor >= queue.length) return;
+    const slot = queue[cursor];
+    cursor += 1;
+    const img = new Image();
+    img.decoding = "async";
+    img.fetchPriority = "low";
+    const done = () => {
+      loaded += 1;
+      if (onProgress) onProgress(loaded / queue.length);
+      startNext();
+    };
+    img.addEventListener("load", done, { once: true });
+    img.addEventListener("error", done, { once: true });
+    img.src = slot.src;
+    images[slot.index] = img;
+  };
+
   const pump = () => {
-    while (cursor < queue.length) {
-      const slot = queue[cursor];
-      cursor += 1;
-      const img = new Image();
-      img.decoding = "async";
-      img.src = slot.src;
-      images[slot.index] = img;
-      img.addEventListener(
-        "load",
-        () => {
-          loaded += 1;
-          if (onProgress) onProgress(loaded / queue.length);
-        },
-        { once: true }
-      );
-      img.addEventListener(
-        "error",
-        () => {
-          loaded += 1;
-          if (onProgress) onProgress(loaded / queue.length);
-        },
-        { once: true }
-      );
-      if (cursor % concurrent === 0) break;
-    }
-    if (cursor < queue.length) {
-      // Schedule the next wave on the next animation frame so we don't choke
-      // the network during initial paint.
-      requestAnimationFrame(pump);
-    }
+    for (let i = 0; i < maxInFlight; i += 1) startNext();
   };
 
   // Kick off preloading after the first paint settles.

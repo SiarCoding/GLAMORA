@@ -40,7 +40,8 @@ const COLLECTIONS = [
 
 export default function ShowroomSection() {
   return (
-    <section id="showroom" className="relative bg-porcelain">
+    // id="kollektion": target of the hero's „Kollektion entdecken" and the nav link.
+    <section id="kollektion" className="relative bg-porcelain">
       <KineticHeadline />
 
       <CollectionsSlider collections={COLLECTIONS} />

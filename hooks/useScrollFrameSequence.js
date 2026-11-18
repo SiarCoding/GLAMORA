@@ -33,7 +33,10 @@ import {
  * @param {[number, number]} [opts.range=[0, 1]] slice of that wrapper's scroll
  *                                       progress that plays this sequence
  * @param {boolean} [opts.lazy=false]   wait to preload until the section is
- *                                       within ~1.5 viewports (long pages)
+ *                                       within `lazyMargin` of the viewport
+ * @param {string} [opts.lazyMargin="150%"] how far ahead (IntersectionObserver
+ *                                       rootMargin, % of viewport height) the
+ *                                       frames start streaming in
  * @returns {object} refs + state to wire to your JSX
  */
 export function useScrollFrameSequence({
@@ -49,6 +52,7 @@ export function useScrollFrameSequence({
   scrollRef,
   range = [0, 1],
   lazy = false,
+  lazyMargin = "150%",
 }) {
   const [rangeStart, rangeEnd] = range;
   const drawImageFit =
@@ -84,11 +88,11 @@ export function useScrollFrameSequence({
           io.disconnect();
         }
       },
-      { rootMargin: "150% 0px" }
+      { rootMargin: `${lazyMargin} 0px` }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [lazy, inRange, sectionRef]);
+  }, [lazy, lazyMargin, inRange, sectionRef]);
 
   // -- Preload frames --------------------------------------------------------
   useEffect(() => {

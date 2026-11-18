@@ -231,15 +231,19 @@ html {
 }
 
 /* Occasion rows: each drifts on its own traversal progress */
+/* --p runs 0 → 1 while the row crosses the viewport. --q compresses that:
+   the word sweeps in over 22vw and lands by the time the row is just past
+   mid-screen (p ≈ 0.58), then rests — ~4× the old drift speed. */
 .occasion-word {
+  --q: clamp(0, calc(var(--p) * 2.4 - 0.4), 1);
   font-size: min(11vw, 200px);
   will-change: transform;
 }
 .occasion-word--right {
-  transform: translate3d(calc((var(--p) - 0.5) * 12vw), 0, 0);
+  transform: translate3d(calc((var(--q) - 1) * 22vw), 0, 0);
 }
 .occasion-word--left {
-  transform: translate3d(calc((0.5 - var(--p)) * 12vw), 0, 0);
+  transform: translate3d(calc((1 - var(--q)) * 22vw), 0, 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -255,23 +259,20 @@ html {
 /* ── Showroom: collections side by side ───────────────────────────────────
    --p (0..1) is the pinned progress of CollectionsSlider; --s is the glide,
    0 → 1 while --p runs 0.43 → 0.57. The panels swing like two pages. */
+/* Two halves. --s 0 → 1: the Abendkleid (centred alone: +50% of its own
+   half-width panel) eases into the left
+   half while the Abaya fades and rises in on the right. Translation only —
+   no rotate/scale, so the gowns are never distorted. */
 .collections-stage {
-  --s: clamp(0, calc((var(--p) - 0.43) / 0.14), 1);
-  perspective: 1800px;
+  --s: clamp(0, calc((var(--p) - 0.42) / 0.16), 1);
 }
-.collections-track {
-  transform: translate3d(calc(var(--s) * -100vw), 0, 0);
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-.collections-panel { will-change: transform; }
+.collections-panel { will-change: transform, opacity; }
 .collections-panel--a {
-  transform-origin: 100% 50%;
-  transform: rotateY(calc(var(--s) * 14deg)) scale(calc(1 - var(--s) * 0.06));
+  transform: translate3d(calc((1 - var(--s)) * 50%), 0, 0);
 }
 .collections-panel--b {
-  transform-origin: 0% 50%;
-  transform: rotateY(calc((1 - var(--s)) * -14deg)) scale(calc(0.94 + var(--s) * 0.06));
+  opacity: var(--s);
+  transform: translate3d(calc((1 - var(--s)) * 12%), calc((1 - var(--s)) * 6vh), 0);
 }
 .collections-dot--a { opacity: calc(1 - var(--s) * 0.7); }
 .collections-dot--b { opacity: calc(0.3 + var(--s) * 0.7); }
@@ -290,9 +291,18 @@ html {
 .garderobe-h {
   display: flex;
   flex-direction: column;
-  font-size: min(12.5vw, 150px);
-  line-height: 0.92;
+  /* Longer two-liner („Ein kleiner Ausschnitt / unserer Abendkleider.") —
+     sized so the wider line still fits beside the lede. */
+  font-size: min(8vw, 88px);
+  line-height: 0.98;
   perspective: 1200px;
+  flex: none; /* never shrink under its lines — the lede wraps below instead */
+}
+/* Each line claims its real width (incl. the indent and the italic overhang),
+   so the lede beside it can't creep under the last letters. */
+.garderobe-h .garderobe-line {
+  width: max-content;
+  padding-right: 0.15em;
 }
 .garderobe-line {
   display: block;
